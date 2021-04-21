@@ -1,0 +1,11 @@
+#本地服务配置
+
+server:
+  port: 8999
+config:
+  log-dir: D:\\tmp_log\\${spring.application.name}
+  jdbc:
+    url: 10.200.50.136:3300/pf5-qhhhsd-20200714
+    username: root
+    password: 1234.abcd
+  swagger-enable: true

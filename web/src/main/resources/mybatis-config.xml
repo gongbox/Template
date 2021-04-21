@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <setting name="cacheEnabled" value="true"/>
+        <!--启用懒加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!--是否允许单一语句返回多结果集（需要兼容驱动）。-->
+        <setting name="multipleResultSetsEnabled" value="true"/>
+        <!--使用列标签代替列名-->
+        <setting name="useColumnLabel" value="true"/>
+        <!--允许 JDBC 支持自动生成主键，需要驱动兼容-->
+        <setting name="useGeneratedKeys" value="false"/>
+        <!--PARTIAL 只会自动映射没有定义嵌套结果集映射的结果集-->
+        <setting name="autoMappingBehavior" value="PARTIAL"/>
+
+        <!--SIMPLE 就是普通的执行器；REUSE 执行器会重用预处理语句（prepared statements）； BATCH 执行器将重用语句并执行批量更新。-->
+        <setting name="defaultExecutorType" value="BATCH"/>
+        <!--允许在嵌套语句中使用分页（RowBounds）。如果允许使用则设置为false。-->
+        <setting name="safeRowBoundsEnabled" value="false"/>
+        <!--本地缓存机制（Local Cache）防止循环引用（circular references）和加速重复嵌套查询。 默认值为 SESSION，这种情况下会缓存一个会话中执行的所有查询-->
+        <setting name="localCacheScope" value="SESSION"/>
+
+        <setting name="jdbcTypeForNull" value="OTHER"/>
+        <!--那些方法执行延迟加载-->
+        <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+        <!--数据库超时时间-->
+        <setting name="defaultStatementTimeout" value="30"/>
+
+        <!--自动映射驼峰命名规则-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+
+        <!--查询无结果时返回空集合还是null-->
+        <setting name="returnInstanceForEmptyRow" value="true"/>
+
+        <setting name="autoMappingUnknownColumnBehavior" value="NONE"/>
+
+        <!--默认的enum转换器-->
+        <setting name="defaultEnumTypeHandler" value="com.baomidou.mybatisplus.extension.handlers.MybatisEnumTypeHandler"/>
+
+        <!--数据库每次取出数量-->
+        <setting name="defaultFetchSize" value="100"/>
+
+        <!-- 不打印sql -->
+        <!--<setting name="logImpl" value="org.apache.ibatis.logging.nologging.NoLoggingImpl"/>-->
+    </settings>
+
+
+</configuration>
