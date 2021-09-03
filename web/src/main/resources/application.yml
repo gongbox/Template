@@ -35,7 +35,7 @@ server:
     uri-encoding: UTF-8
     max-connections: 1000
     accept-count: 100
-    basedir: ${config.log-dir}/tomcat
+    basedir: ${logging.file.path}/tomcat
     accesslog:
       enabled: true
       directory: access
@@ -48,7 +48,7 @@ server:
     threads:
       min-spare: 10
       max: 50
-    connection-timeout: 60
+    connection-timeout: 6000
 
 
 mybatis-plus:

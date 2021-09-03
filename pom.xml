@@ -11,8 +11,6 @@
     <modules>
         <module>common</module>
         <module>web</module>
-        <module>export</module>
-        <module>import</module>
     </modules>
 
     <parent>
