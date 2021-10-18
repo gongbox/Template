@@ -15,16 +15,13 @@
  */
 package com.gongbo.common.batch;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
-import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.core.toolkit.sql.SqlScriptUtils;
-import com.gongbo.common.batch.annotations.OnDuplicateUpdate;
 import lombok.NoArgsConstructor;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
@@ -33,8 +30,6 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * 批量插入数据(参考InsertBatchSomeColumn.class)
@@ -43,30 +38,23 @@ import java.util.function.Predicate;
  * @since 2021-02-06
  */
 @NoArgsConstructor
-public class InsertOrUpdateBatchMethod extends AbstractMethod {
+public class ReplaceBatchMethod extends AbstractMethod {
 
-    private static final String ON_DUPLICATE_KEY_UPDATE_PREFIX_SQL = "\nON DUPLICATE KEY UPDATE\n";
-    private static final String COLUMN_VALUES_SQL = "%s = values(%s)";
-    private static final String BATCH_INSERT_SQL = "<script>\nINSERT INTO %s %s VALUES %s %s</script>";
+    private final static String REPLACE_BATCH_SQL = "<script>\nREPLACE INTO %s %s VALUES %s\n</script>";
+    private final static String REPLACE_NATCH_METHOD = "replaceBatch";
 
-    private static final String METHOD_NAME = "insertOrUpdateBatch";
-
-    @SuppressWarnings("Duplicates")
-    @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
         KeyGenerator keyGenerator = new NoKeyGenerator();
         List<TableFieldInfo> fieldList = tableInfo.getFieldList();
-        //插入的列名
+        if (CollUtil.isEmpty(fieldList)) {
+            return null;
+        }
         String insertSqlColumn = tableInfo.getKeyInsertSqlColumn(false) +
                 this.filterTableFieldInfo(fieldList, null, TableFieldInfo::getInsertSqlColumn, EMPTY);
-        if (StrUtil.isBlank(insertSqlColumn)) {
-            insertSqlColumn = StringPool.SPACE;
-        }
-        String columnScript = LEFT_BRACKET + insertSqlColumn.substring(0, Math.max(insertSqlColumn.length(), 1) - 1) + RIGHT_BRACKET;
-        //插入的列值
+        String columnScript = LEFT_BRACKET + insertSqlColumn.substring(0, insertSqlColumn.length() - 1) + RIGHT_BRACKET;
         String insertSqlProperty = tableInfo.getKeyInsertSqlProperty(ENTITY_DOT, false) +
                 this.filterTableFieldInfo(fieldList, null, i -> i.getInsertSqlProperty(ENTITY_DOT), EMPTY);
-        insertSqlProperty = LEFT_BRACKET + insertSqlProperty.substring(0, Math.max(insertSqlProperty.length(), 1) - 1) + RIGHT_BRACKET;
+        insertSqlProperty = LEFT_BRACKET + insertSqlProperty.substring(0, insertSqlProperty.length() - 1) + RIGHT_BRACKET;
         String valuesScript = SqlScriptUtils.convertForeach(insertSqlProperty, "collection", null, ENTITY, COMMA);
         String keyProperty = null;
         String keyColumn = null;
@@ -79,51 +67,14 @@ public class InsertOrUpdateBatchMethod extends AbstractMethod {
                 keyColumn = tableInfo.getKeyColumn();
             } else {
                 if (null != tableInfo.getKeySequence()) {
-                    keyGenerator = TableInfoHelper.genKeyGenerator(METHOD_NAME, tableInfo, builderAssistant);
+                    keyGenerator = TableInfoHelper.genKeyGenerator(REPLACE_NATCH_METHOD, tableInfo, builderAssistant);
                     keyProperty = tableInfo.getKeyProperty();
                     keyColumn = tableInfo.getKeyColumn();
                 }
             }
         }
-        //更新字段内容
-        boolean defaultUpdateState = getDefault(modelClass);
-
-        Predicate<TableFieldInfo> updateFieldPredicate = tableFieldInfo ->
-                Optional.ofNullable(tableFieldInfo.getField())
-                        .map(f -> f.getAnnotation(OnDuplicateUpdate.class))
-                        .map(OnDuplicateUpdate::value)
-                        .orElse(defaultUpdateState);
-
-        String updateColumnValues = this.filterTableFieldInfo(fieldList, updateFieldPredicate, tableFieldInfo -> String.format(COLUMN_VALUES_SQL, tableFieldInfo.getColumn(), tableFieldInfo.getColumn()), StringPool.COMMA);
-        String updateSql;
-        if (StrUtil.isNotBlank(updateColumnValues)) {
-            updateSql = ON_DUPLICATE_KEY_UPDATE_PREFIX_SQL + updateColumnValues;
-        } else {
-            updateSql = StringPool.EMPTY;
-        }
-
-        String sql = String.format(BATCH_INSERT_SQL, tableInfo.getTableName(), columnScript, valuesScript, updateSql);
+        String sql = String.format(REPLACE_BATCH_SQL, tableInfo.getTableName(), columnScript, valuesScript);
         SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, modelClass);
-
-        return this.addInsertMappedStatement(mapperClass, modelClass, METHOD_NAME, sqlSource, keyGenerator, keyProperty, keyColumn);
-    }
-
-
-    @Override
-    public String getMethod(SqlMethod sqlMethod) {
-        // 自定义 mapper 方法名
-        return METHOD_NAME;
-    }
-
-    /**
-     *
-     */
-    private boolean getDefault(Class<?> modelClass) {
-        OnDuplicateUpdate onDuplicateUpdate = modelClass.getAnnotation(OnDuplicateUpdate.class);
-        if (onDuplicateUpdate != null) {
-            return onDuplicateUpdate.value();
-        }
-        //默认为false
-        return false;
+        return this.addInsertMappedStatement(mapperClass, modelClass, REPLACE_NATCH_METHOD, sqlSource, keyGenerator, keyProperty, keyColumn);
     }
 }

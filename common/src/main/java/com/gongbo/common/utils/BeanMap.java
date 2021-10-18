@@ -28,10 +28,30 @@ public interface BeanMap {
      * @return
      */
     default <T> T mapTo(Supplier<T> supplier) {
-        T data = supplier.get();
-        BeanUtils.copyProperties(this, data);
-        return data;
+        return mapTo(this, supplier);
     }
 
+    /**
+     * 转换为其他类型对象
+     *
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    static <T> T mapTo(Object obj, Class<T> clazz) {
+        return mapTo(obj, () -> BeanUtils.instantiateClass(clazz));
+    }
 
+    /**
+     * 转换为其他类型对象
+     *
+     * @param supplier
+     * @param <T>
+     * @return
+     */
+    static <T> T mapTo(Object obj, Supplier<T> supplier) {
+        T data = supplier.get();
+        BeanUtils.copyProperties(obj, data);
+        return data;
+    }
 }

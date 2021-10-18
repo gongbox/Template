@@ -1,7 +1,6 @@
 package com.gongbo.common.validate.custom.validator;
 
 
-import com.gongbo.common.utils.Range;
 import com.gongbo.common.validate.custom.annotation.RangeEnd;
 import org.springframework.util.comparator.Comparators;
 
@@ -25,11 +24,11 @@ public class RangeEndCheckValidator implements ConstraintValidator<RangeEnd, Com
             return true;
         }
 
-        Range<Comparable<?>> currentRange = RangeCheckContext.getCurrentRange(rangeGroup);
-        currentRange.setEnd(value);
+        Comparable<?>[] currents = RangeCheckContext.currentOf(rangeGroup);
+        currents[1] = value;
 
-        if (currentRange.getStart() != null && currentRange.getEnd() != null) {
-            return Comparators.comparable().compare(currentRange.getStart(), currentRange.getEnd()) <= 0;
+        if (currents[0] != null && currents[1] != null) {
+            return Comparators.comparable().compare(currents[0], currents[1]) <= 0;
         }
         return true;
     }

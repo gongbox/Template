@@ -12,6 +12,6 @@ public interface BaseBatchMapper<T> extends BaseMapper<T> {
      * @param entityList 实体列表
      * @return 影响行数（注意，如果defaultExecutorType为BATCH时，返回值将固定为-2147482646）
      */
-    Integer insertOrUpdateBatch(Collection<T> entityList);
+    int insertOrUpdateBatch(Collection<T> entityList);
 
 }

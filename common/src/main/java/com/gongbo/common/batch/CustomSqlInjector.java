@@ -11,6 +11,8 @@ public class CustomSqlInjector extends DefaultSqlInjector {
     public List<AbstractMethod> getMethodList(Class<?> mapperClass) {
         List<AbstractMethod> methodList = super.getMethodList(mapperClass);
         methodList.add(new InsertOrUpdateBatchMethod());
+        methodList.add(new ReplaceMethod());
+        methodList.add(new ReplaceBatchMethod());
         return methodList;
     }
 }
