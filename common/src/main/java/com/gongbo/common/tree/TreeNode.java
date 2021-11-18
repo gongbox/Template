@@ -1,4 +1,4 @@
-package com.cuttlefish.common.utils.tree;
+package com.gongbo.common.tree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gongbo.common.tree.TreeBean;
