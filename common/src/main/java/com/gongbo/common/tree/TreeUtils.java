@@ -18,7 +18,7 @@ public class TreeUtils {
     /**
      * 树结构转List
      */
-    public static <PK extends Serializable, T extends TreeBean<PK>> List<T> treeToList(List<TreeNode<PK, T>> nodes) {
+    public static <K extends Serializable, T extends TreeBean<K>> List<T> treeToList(List<TreeNode<K, T>> nodes) {
         if (CollectionUtils.isEmpty(nodes)) {
             return Collections.emptyList();
         }
@@ -29,7 +29,7 @@ public class TreeUtils {
                 .collect(Collectors.toList());
 
         //找当前层级的下一层级
-        List<TreeNode<PK, T>> children = nodes.stream()
+        List<TreeNode<K, T>> children = nodes.stream()
                 .filter(n -> CollectionUtils.isNotEmpty(n.getChildren()))
                 .flatMap(n -> n.getChildren().stream())
                 .collect(Collectors.toList());
@@ -43,37 +43,31 @@ public class TreeUtils {
     /**
      * 集合转树结构
      */
-    public static <PK extends Serializable, T extends TreeBean<PK>> List<TreeNode<PK, T>> listToTree(List<T> list) {
+    public static <K extends Serializable, T extends TreeBean<K>> List<TreeNode<K, T>> listToTree(List<T> list) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
 
         //转化为Node集合
-        List<TreeNode<PK, T>> nodes = list.stream()
-                .map(t -> {
-                    TreeNode<PK, T> node = new TreeNode<>();
-                    node.setValue(t);
-                    return node;
-                }).collect(Collectors.toList());
+        List<TreeNode<K, T>> nodes = list.stream()
+                .map(TreeNode::new)
+                .collect(Collectors.toList());
 
         //构建 id -> T 的map
-        Map<PK, TreeNode<PK, T>> nodeMap = nodes.stream()
-                .collect(Collectors.toMap(n -> n.getValue().getId(),
-                        Function.identity()));
+        Map<K, TreeNode<K, T>> nodeMap = nodes.stream()
+                .collect(Collectors.toMap(TreeNode::getId, Function.identity()));
 
         //构建 parentId -> T 的map
-        Map<PK, List<TreeNode<PK, T>>> nodeChildrenMap = nodes.stream()
+        Map<K, List<TreeNode<K, T>>> nodeChildrenMap = nodes.stream()
                 .filter(n -> !n.isRoot())
-                .collect(Collectors.groupingBy(n -> n.getValue().getParentId()));
+                .collect(Collectors.groupingBy(TreeNode::getParentId));
 
         //填充node集合
-        for (TreeNode<PK, T> node : nodes) {
+        for (TreeNode<K, T> node : nodes) {
             if (!node.isRoot()) {
-                TreeNode<PK, T> parent = nodeMap.get(node.getValue().getParentId());
-                node.setParent(parent);
+                node.setParent(nodeMap.get(node.getValue().getParentId()));
             }
-            List<TreeNode<PK, T>> children = nodeChildrenMap.get(node.getValue().getId());
-            node.setChildren(children);
+            node.setChildren(nodeChildrenMap.get(node.getValue().getId()));
         }
 
         return nodes.stream()
@@ -91,7 +85,7 @@ public class TreeUtils {
      * @param <T>        泛型参数
      * @return
      */
-    public static <PK extends Serializable, T extends TreeBean<PK>> List<T> listChildren(List<T> list, PK parentId, boolean withParent) {
+    public static <K extends Serializable, T extends TreeBean<K>> List<T> listChildren(List<T> list, K parentId, boolean withParent) {
         return list.stream()
                 .filter(t -> (withParent && t.getId().equals(parentId)) || parentId.equals(t.getParentId()))
                 .collect(Collectors.toList());
@@ -107,7 +101,7 @@ public class TreeUtils {
      * @param <T>        类型
      * @return
      */
-    public static <PK extends Serializable, T extends TreeBean<PK>> List<T> listAllChildren(List<T> list, PK parentId, boolean withParent) {
+    public static <K extends Serializable, T extends TreeBean<K>> List<T> listAllChildren(List<T> list, K parentId, boolean withParent) {
         //先找到最顶层
         List<T> parentList = list.stream()
                 .filter(t -> parentId.equals(t.getId()))
@@ -121,7 +115,7 @@ public class TreeUtils {
 
         //循环填充下级数据
         while (CollectionUtils.isNotEmpty(parentList)) {
-            Set<PK> parentIds = parentList.stream().map(T::getId)
+            Set<K> parentIds = parentList.stream().map(T::getId)
                     .collect(Collectors.toSet());
 
             List<T> subList = list.stream()
