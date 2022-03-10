@@ -1,16 +1,13 @@
 package com.gongbo.common.utils;
 
-import com.baomidou.mybatisplus.extension.api.R;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -83,6 +80,15 @@ public class Range<T extends Comparable<? super T>> {
     }
 
     /**
+     * 计算长度
+     * @param stepTo
+     * @return
+     */
+    public int size(BiFunction<T, Integer, T> stepTo) {
+        return toList(stepTo).size();
+    }
+
+    /**
      * 判断是否在范围内
      */
     public boolean contains(T value) {
@@ -91,33 +97,30 @@ public class Range<T extends Comparable<? super T>> {
         }
 
         if (leftClose && rightClose) {
-            return start.compareTo(value) >= 0 && end.compareTo(value) <= 0;
+            return start.compareTo(value) <= 0 && end.compareTo(value) >= 0;
         } else if (leftClose) {
-            return start.compareTo(value) >= 0 && end.compareTo(value) < 0;
+            return start.compareTo(value) <= 0 && end.compareTo(value) > 0;
         } else if (rightClose) {
-            return start.compareTo(value) > 0 && end.compareTo(value) <= 0;
+            return start.compareTo(value) < 0 && end.compareTo(value) >= 0;
         } else {
-            return start.compareTo(value) > 0 && end.compareTo(value) < 0;
+            return start.compareTo(value) < 0 && end.compareTo(value) > 0;
         }
     }
 
     /**
-     * 限制值范围,只能对闭区间做改操作
+     * 限制值范围
      */
     public T limit(T value) {
         if (value == null) {
             return null;
         }
+        if ((!leftClose && start.compareTo(value) == 0) || (!rightClose && end.compareTo(value) == 0)) {
+            return null;
+        }
         if (value.compareTo(start) < 0) {
-            if (!leftClose) {
-                throw new IllegalArgumentException("区间左开时，无法限制左部范围");
-            }
             return start;
         }
         if (value.compareTo(end) > 0) {
-            if (!rightClose) {
-                throw new IllegalArgumentException("区间右开时，无法限制右部范围");
-            }
             return end;
         }
         return value;
@@ -167,29 +170,27 @@ public class Range<T extends Comparable<? super T>> {
         throw new IllegalArgumentException();
     }
 
-
-    public static void main(String[] args) {
-        System.out.println(Range.of(5, 8).limit(5));
-        System.out.println(Range.of(5, 8).limit(4));
-        System.out.println(Range.of(5, 8).limit(8));
-        System.out.println(Range.of(5, 8).limit(9));
-
-        System.out.println(Range.open(5, 8).limit(4));
-        System.out.println(Range.open(5, 8).limit(5));
-        System.out.println(Range.open(5, 8).limit(8));
-        System.out.println(Range.open(5, 8).limit(9));
-
-        Range<Integer> range = Range.of(5, 8);
-
-
-        System.out.println(range.exclude(Range.of(1, 3)));
-        System.out.println(range.exclude(Range.of(3, 5)));
-        System.out.println(range.exclude(Range.of(3, 6)));
-        System.out.println(range.exclude(Range.of(7, 11)));
-        System.out.println(range.exclude(Range.of(8, 11)));
-        System.out.println(range.exclude(Range.of(9, 11)));
-        System.out.println(range.exclude(Range.of(1, 11)));
-
-        System.out.println(range.exclude(Range.of(6, 7)));
+    /**
+     * 交集
+     *
+     * @param other
+     * @return
+     */
+    public Range<T> intersection(Range<T> other) {
+        if (start.compareTo(other.end) >= 0 || end.compareTo(other.start) <= 0) {
+            return null;
+        }
+        return of(Utils.max(start, other.start), Utils.min(end, other.end));
     }
+
+    /**
+     * 并集
+     */
+    public List<Range<T>> union(Range<T> other) {
+        if (start.compareTo(other.end) >= 0 || end.compareTo(other.start) <= 0) {
+            return Arrays.asList(this, other);
+        }
+        return Collections.singletonList(of(Utils.min(start, other.start), Utils.max(end, other.end)));
+    }
+
 }

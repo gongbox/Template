@@ -1,5 +1,6 @@
-package com.gongbo.common.utils;
+package com.goldwind.pf.common.util;
 
+import com.gongbo.common.utils.ValueWrapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

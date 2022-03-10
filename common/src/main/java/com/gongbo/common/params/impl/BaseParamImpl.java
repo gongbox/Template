@@ -37,7 +37,7 @@ public class BaseParamImpl implements BaseParam {
     @Override
     public Object getParamValue(String key, Object defaultValue) {
         if (paramMap == null) {
-            return null;
+            return defaultValue;
         }
 
         return paramMap.getOrDefault(key, defaultValue);

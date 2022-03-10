@@ -1,6 +1,5 @@
 package com.gongbo.common.dynamictable.base;
 
-
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gongbo.common.dynamictable.core.DynamicTableOf;
 

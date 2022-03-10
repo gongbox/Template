@@ -13,6 +13,7 @@ public class CustomSqlInjector extends DefaultSqlInjector {
         methodList.add(new InsertOrUpdateBatchMethod());
         methodList.add(new ReplaceMethod());
         methodList.add(new ReplaceBatchMethod());
+        methodList.add(new InsertOnDuplicateKeyUpdateMethod());
         return methodList;
     }
 }

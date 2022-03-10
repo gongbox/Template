@@ -77,5 +77,10 @@
             <artifactId>guava</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>p6spy</groupId>
+            <artifactId>p6spy</artifactId>
+        </dependency>
+
     </dependencies>
 </project>

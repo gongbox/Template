@@ -1,6 +1,5 @@
 package com.gongbo.common.dynamictable.core;
 
-
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
@@ -99,7 +98,7 @@ public class DynamicTableHelper {
     public static String buildTableName(Class<?> entityType, String format) {
         Object[] params = getParams(entityType);
         if (params == null) {
-            throw new IllegalArgumentException("动态表调用前请先设置表参数");
+            throw new RuntimeException("动态表调用前请先设置表参数");
         }
         return String.format(format, params);
     }

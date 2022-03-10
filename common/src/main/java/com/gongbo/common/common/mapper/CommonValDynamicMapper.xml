@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gongbo.common.common.mapper.CommonValDynamicMapper">
+
+    <sql id="base_select_sql">
+        SELECT
+        <choose>
+            <when test="ew.sqlSelect != null and ew.sqlSelect != ''">
+                ${ew.sqlSelect}
+            </when>
+            <otherwise>
+                *
+            </otherwise>
+        </choose>
+        FROM common_val_dynamic_table
+    </sql>
+
+    <select id="selectOne" resultType="com.gongbo.common.dynamicresult.DynamicResult">
+        <include refid="base_select_sql"/>
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectList" resultType="com.gongbo.common.dynamicresult.DynamicResult">
+        <include refid="base_select_sql"/>
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectPage" resultType="com.gongbo.common.dynamicresult.DynamicResult">
+        <include refid="base_select_sql"/>
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectByMap" resultType="com.gongbo.common.dynamicresult.DynamicResult">
+        SELECT * FROM common_val_dynamic_table
+        <if test="cm != null and !cm.isEmpty">
+            <where>
+                <foreach collection="cm" index="k" item="v" separator="AND">
+                    <choose>
+                        <when test="v == null">
+                            ${k} IS NULL
+                        </when>
+                        <otherwise> ${k} = #{v} </otherwise>
+                    </choose>
+                </foreach>
+            </where>
+        </if>
+    </select>
+
+    <select id="selectMaps" resultType="map">
+        <include refid="base_select_sql"/>
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectMapsPage" resultType="map">
+        <include refid="base_select_sql"/>
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectObjs" resultType="object">
+        <include refid="base_select_sql"/>
+        ${ew.customSqlSegment}
+    </select>
+
+</mapper>

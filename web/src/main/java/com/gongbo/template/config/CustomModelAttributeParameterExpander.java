@@ -1,16 +1,15 @@
 
 package com.gongbo.template.config;
 
+import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.types.ResolvedObjectType;
 import com.fasterxml.classmate.types.ResolvedPrimitiveType;
 import com.gongbo.common.constant.ParamNames;
-import com.gongbo.common.params.BaseParam;
-import com.gongbo.common.params.DateRangeParam;
-import com.gongbo.common.params.DateTimeRangeParam;
-import com.gongbo.common.params.PageParam;
+import com.gongbo.common.params.*;
 import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -31,8 +30,9 @@ import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-//@Component
-//@Primary
+@Component
+@Primary
+@ConditionalOnProperty(name = "config.swagger-enable", havingValue = "true")
 public class CustomModelAttributeParameterExpander extends ModelAttributeParameterExpander {
 
     @Autowired
@@ -85,6 +85,22 @@ public class CustomModelAttributeParameterExpander extends ModelAttributeParamet
                     .modelRef(new ModelRef("int"))
                     .parameterType(parameterType)
                     .order(1001)
+                    .build());
+        }
+
+        //添加日期参数
+        if (context.getParamType().isInstanceOf(DateParam.class)) {
+            ResolvedObjectType fieldType = ResolvedObjectType.create(LocalDate.class, null, null, null);
+
+            parameters.add(new ParameterBuilder()
+                    .name(ParamNames.DATE)
+                    .description("日期")
+                    .required(Boolean.FALSE)
+                    .allowMultiple(false)
+                    .type(fieldType)
+                    .modelRef(new ModelRef("string"))
+                    .parameterType(parameterType)
+                    .order(1002)
                     .build());
         }
 

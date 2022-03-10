@@ -8,11 +8,6 @@ import com.gongbo.common.batch.CustomSqlInjector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Author:王春伟
- * Date:2021/1/12
- * 佛系码农,热爱生活！
- **/
 @Configuration
 public class MyBatisPlusConfig {
 

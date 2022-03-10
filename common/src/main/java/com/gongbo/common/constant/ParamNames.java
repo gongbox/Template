@@ -28,6 +28,15 @@ public class ParamNames {
      */
     public static final String END_DATE_TIME = "endDateTime";
 
+    /**
+     * 日期（格式：yyyy-MM-dd）
+     */
+    public static final String DATE = "date";
+
+    /**
+     * 月份
+     */
+    public static final String MONTH = "month";
 
     /**
      * 当前页数
@@ -38,4 +47,5 @@ public class ParamNames {
      * 每页条数
      */
     public static final String PAGE_SIZE = "pageSize";
+
 }

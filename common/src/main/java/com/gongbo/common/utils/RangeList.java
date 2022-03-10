@@ -29,6 +29,10 @@ public class RangeList<E extends Comparable<? super E>> extends AbstractList<E> 
 
     @Override
     public E get(int index) {
+        //左开时，跳过左开值
+        if (!range.isLeftClose()) {
+            index = index + 1;
+        }
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException();
         }
@@ -49,22 +53,34 @@ public class RangeList<E extends Comparable<? super E>> extends AbstractList<E> 
         E end = range.getEnd();
         int addValue = 1;
         int sizeTemp = 1;
-
+        boolean flag = false;
         while (true) {
             int compare = temp.compareTo(end);
             if (compare < 0) {
+                if (flag) {
+                    throw new IllegalArgumentException("参数异常，无法将区间转换为集合");
+                }
                 addValue = addValue << 1;
                 temp = stepTo.apply(temp, addValue);
                 sizeTemp = sizeTemp + addValue;
             } else if (compare > 0) {
                 addValue = Math.max(addValue >> 1, 1);
+                flag = addValue == 1;
                 temp = stepTo.apply(temp, -addValue);
                 sizeTemp = sizeTemp - addValue;
             } else {
                 break;
             }
         }
-        return sizeTemp;
+        //去除开始值
+        if (!range.isLeftClose()) {
+            sizeTemp -= 1;
+        }
+        //去除结束值
+        if (!range.isRightClose()) {
+            sizeTemp -= 1;
+        }
+        return Math.max(sizeTemp, 0);
     }
 
     @Override

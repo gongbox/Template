@@ -1,6 +1,5 @@
 package com.gongbo.common.dynamictable.base;
 
-
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.gongbo.common.dynamictable.core.DynamicTableHelper;
 import com.gongbo.common.dynamictable.core.DynamicTableOf;

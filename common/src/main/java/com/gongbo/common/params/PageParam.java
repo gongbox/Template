@@ -1,6 +1,7 @@
 package com.gongbo.common.params;
 
-
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gongbo.common.constant.ParamNames;
 
 /**
@@ -22,5 +23,9 @@ public interface PageParam extends BaseParam {
 
     default void setPage(Integer value) {
         setParamValue(ParamNames.PAGE, value);
+    }
+
+    default <T> IPage<T> buildPage() {
+        return new Page<>(getPage(), getPageSize());
     }
 }
